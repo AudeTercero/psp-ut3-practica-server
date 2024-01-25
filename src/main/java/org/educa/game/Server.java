@@ -6,6 +6,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
+import java.io.BufferedReader;
+import java.io.PrintWriter;
+import java.io.InputStreamReader;
 
 public class Server {
 
@@ -24,7 +27,20 @@ public class Server {
             System.out.println("Aceptando conexiones.");
 
             while (true){
-                clientSocket = serverSocket.accept();
+                try {
+                    clientSocket = serverSocket.accept();
+                    System.out.println("New connection: " + clientSocket);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                    PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
+
+                    String playerName = reader.readLine();
+                    System.out.println("Player connected: " + playerName);
+
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
             }
         }catch (IOException e){
