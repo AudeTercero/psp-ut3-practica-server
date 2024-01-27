@@ -17,57 +17,67 @@ public class Request implements Runnable {
 
     @Override
     public void run() {
-        try {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+             PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);) {
 
             System.out.println("New connection: " + clientSocket);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
 
             String[] playerInfo = reader.readLine().split(",");
 
-            String nick = playerInfo[0];
-            String gameType = playerInfo[1];
-            int port = Integer.parseInt(playerInfo[2]);
-            String host = playerInfo[3];
+            if (playerInfo.length == 3) {
+                String nick = playerInfo[0];
+                String gameType = playerInfo[1];
+                int playersNeeded = Integer.parseInt(playerInfo[2]);
 
-            Player player = new Player(nick,host,port);
+                String host = clientSocket.getInetAddress().getHostAddress();
+                int port = clientSocket.getPort();
 
-           // newPlayerInMatch(player, gameType);
+                Player player = new Player(nick, gameType, host, port);
+
+                newPlayerInMatch(player, gameType, playersNeeded);
+
+
+            } else {
+                int id = Integer.parseInt(playerInfo[0]);
+                endMatch(id);
+            }
 
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-/*
-    public void newPlayerInMatch(Player player, String gameType) {
+
+    public synchronized void newPlayerInMatch(Player player, String gameType, int playersNeeded) {
         int count = 0;
         List<Player> auxPlayer = new ArrayList<>();
-        if (!players.isEmpty()) {
-            for (Player p : players) {
-                if (p.type.equalsIgnoreCase(player.type)) {
+        if (!Server.playersWaiting.isEmpty()) {
+            for (Player p : Server.playersWaiting) {
+                if (p.getGameType().equalsIgnoreCase(player.getGameType())) {
                     count++;
                 }
             }
-            if (count >= needPlayers) {
+            if (count >= playersNeeded) {
                 auxPlayer.add(player);
-                for (Player p : players) {
-                    if (p.type.equalsIgnoreCase(player.type) && auxPlayer.size() < needPlayers) {
+                for (Player p : Server.playersWaiting) {
+                    if (p.getGameType().equalsIgnoreCase(player.getGameType()) && auxPlayer.size() < playersNeeded) {
                         auxPlayer.add(p);
+                        Server.playersWaiting.remove(p);
                     }
                 }
-                matches.add(new Match());
+                Match match = new Match(gameType, playersNeeded, auxPlayer);
+                Server.matches.put(match.getId(), match);
             } else {
-                players.add(player);
+                Server.playersWaiting.add(player);
             }
 
         } else {
-            players.add(player);
+            Server.playersWaiting.add(player);
         }
 
-    }*/
+    }
 
-    public void endMatch(int id) {
-
+    public synchronized void endMatch(int id) {
+        Server.matches.remove(id);
     }
 }

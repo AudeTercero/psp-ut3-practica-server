@@ -7,14 +7,17 @@ import java.util.List;
 public class Match {
 
     private int id;
+    private static int count = 0;
     private String gameType;
     private int playersNum;
     private List<Player> players;
 
     public Match(String gameType, int playersNum,List<Player> players) {
+        id = count;
         this.gameType = gameType;
         this.playersNum = playersNum;
         this.players = players;
+        count ++;
     }
 
     public int getId() {

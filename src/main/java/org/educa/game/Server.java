@@ -12,8 +12,8 @@ public class Server {
 
     private final String HOST = "localhost";
     private final int PORT = 5555;
-    protected Map<Integer, Match> matches;
-    protected List<Player> players;
+    protected static Map<Integer, Match> matches;
+    protected static List<Player> playersWaiting;
 
     public void run() {
         System.out.println("Creando socket servidor");
