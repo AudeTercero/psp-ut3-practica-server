@@ -10,6 +10,7 @@ import java.util.List;
 
 public class Request implements Runnable {
     private Socket clientSocket;
+    private int playersReady;
 
     public Request(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -28,13 +29,12 @@ public class Request implements Runnable {
                 String nick = playerInfo[0];
                 String gameType = playerInfo[1];
                 int playersNeeded = Integer.parseInt(playerInfo[2]);
-
                 String host = clientSocket.getInetAddress().getHostAddress();
                 int port = clientSocket.getPort();
-
                 Player player = new Player(nick, gameType, host, port);
+                waitForPlayers(playersNeeded);
 
-                newPlayerInMatch(player, gameType, playersNeeded);
+                //newPlayerInMatch(player, gameType, playersNeeded);
 
 
             } else {
@@ -43,9 +43,21 @@ public class Request implements Runnable {
             }
 
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public synchronized void waitForPlayers(int playersNeeded) throws InterruptedException {
+        playersReady++;
+        while (playersReady < playersNeeded) {
+            wait();
+        }
+    }
+
+    public synchronized void notifyPlayers() {
+        playersReady = 0;
+        notifyAll();
     }
 
     public synchronized void newPlayerInMatch(Player player, String gameType, int playersNeeded) {
