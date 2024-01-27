@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.io.BufferedReader;
@@ -14,38 +15,32 @@ public class Server {
 
     private final String HOST = "localhost";
     private final int PORT = 5555;
-    private Map<Integer, Match> matches;
-    private List<Player> players;
+    protected Map<Integer, Match> matches;
+    protected List<Player> players;
+
     public void run() {
         System.out.println("Creando socket servidor");
         Socket clientSocket = null;
 
-        try(ServerSocket serverSocket = new ServerSocket()){
-            InetSocketAddress addr = new InetSocketAddress(HOST,PORT);
+        try (ServerSocket serverSocket = new ServerSocket()) {
+            InetSocketAddress addr = new InetSocketAddress(HOST, PORT);
             serverSocket.bind(addr);
 
             System.out.println("Aceptando conexiones.");
 
-            while (true){
-                try {
-                    clientSocket = serverSocket.accept();
-                    System.out.println("New connection: " + clientSocket);
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                    PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
+            while (true) {
+                clientSocket = serverSocket.accept();
+                Request request = new Request(clientSocket);
+                Thread thread = new Thread(request);
+                thread.start();
 
-                    String playerName = reader.readLine();
-                    System.out.println("Player connected: " + playerName);
-
-
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
 
             }
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
+
+
 }
