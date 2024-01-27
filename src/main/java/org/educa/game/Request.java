@@ -1,9 +1,6 @@
 package org.educa.game;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +16,14 @@ public class Request implements Runnable {
     @Override
     public void run() {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-             PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);) {
+             ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream())) {
 
             System.out.println("New connection: " + clientSocket);
+            String data = reader.readLine();
 
-            String[] playerInfo = reader.readLine().split(",");
+            String[] playerInfo = data.split(",");
+            System.out.println("hola");
+            System.out.println(playerInfo[0]);
 
             if (playerInfo.length == 3) {
                 String nick = playerInfo[0];
@@ -32,7 +32,14 @@ public class Request implements Runnable {
                 String host = clientSocket.getInetAddress().getHostAddress();
                 int port = clientSocket.getPort();
                 Player player = new Player(nick, gameType, host, port);
-                waitForPlayers(playersNeeded);
+                System.out.println(player.getNickname());
+                List<String> lista = new ArrayList<>();
+                lista.add(nick+","+host+","+port);
+                lista.add(nick+","+host+","+port);
+                out.writeObject(lista);
+                out.flush();
+                //waitForPlayers(playersNeeded);
+
 
                 //newPlayerInMatch(player, gameType, playersNeeded);
 
@@ -86,7 +93,6 @@ public class Request implements Runnable {
         } else {
             Server.playersWaiting.add(player);
         }
-
     }
 
     public synchronized void endMatch(int id) {
