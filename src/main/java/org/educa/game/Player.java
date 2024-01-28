@@ -2,13 +2,12 @@ package org.educa.game;
 
 public class Player {
     private String nickname;
-    private String gameType;
+    private  int roll;
     private String host;
     private int port;
 
-    public Player(String nickname, String gameType, String host, int port) {
+    public Player(String nickname, String host, int port) {
         this.nickname = nickname;
-        this.gameType = gameType;
         this.host = host;
         this.port = port;
     }
@@ -21,12 +20,12 @@ public class Player {
         this.nickname = nickname;
     }
 
-    public String getGameType() {
-        return gameType;
+    public int getRoll() {
+        return roll;
     }
 
-    public void setGameType(String gameType) {
-        this.gameType = gameType;
+    public void setRoll(int roll) {
+        this.roll = roll;
     }
 
     public String getHost() {

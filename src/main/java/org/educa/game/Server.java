@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ public class Server {
 
     private final String HOST = "localhost";
     private final int PORT = 5555;
-    protected static Map<Integer, Match> matches;
+    protected static Map<Integer, Match> matches = new HashMap<>();
     protected static List<Player> playersWaiting;
 
     public void run() {

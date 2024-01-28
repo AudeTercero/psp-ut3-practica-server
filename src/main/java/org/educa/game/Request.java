@@ -31,16 +31,11 @@ public class Request implements Runnable {
                 int playersNeeded = Integer.parseInt(playerInfo[2]);
                 String host = clientSocket.getInetAddress().getHostAddress();
                 int port = clientSocket.getPort();
-                Player player = new Player(nick, gameType, host, port);
+                Player player = new Player(nick, host, port);
                 System.out.println(player.getNickname());
-                List<String> lista = new ArrayList<>();
-                lista.add(nick+","+host+","+port);
-                lista.add(nick+","+host+","+port);
-                out.writeObject(lista);
+                Match match = newPlayerInMatch(player, gameType, playersNeeded);
+                out.writeObject(playerListInMatch(match));
                 out.flush();
-                //waitForPlayers(playersNeeded);
-
-
                 //newPlayerInMatch(player, gameType, playersNeeded);
 
 
@@ -62,37 +57,56 @@ public class Request implements Runnable {
         }
     }
 
-    public synchronized void notifyPlayers() {
-        playersReady = 0;
-        notifyAll();
+
+
+    public synchronized Match newPlayerInMatch(Player player, String gameType, int playersNeeded) throws InterruptedException {
+        if (Server.matches.isEmpty()) {
+            Match match = new Match(gameType, playersNeeded);
+            player.setRoll(0);
+            match.getPlayers().add(player);
+            Server.matches.put(match.getId(),match);
+            while (!match.isMatchFull()) {
+                System.out.println("Esperando jugadores1");
+                Thread.sleep(1000);
+            }
+            return match;
+        } else {
+            boolean isFull = true;
+            for (Match match : Server.matches.values()) {
+                if (match.getGameType().equalsIgnoreCase(gameType) && !match.isMatchFull()) {
+                    player.setRoll(1);
+                    match.getPlayers().add(player);
+                    isFull = false;
+                    while (!match.isMatchFull()) {
+                        System.out.println("Esperando jugadores2");
+                        Thread.sleep(1000);
+                    }
+
+                    return match;
+                }
+            }
+            if (isFull) {
+                Match match = new Match(gameType, playersNeeded);
+                player.setRoll(0);
+                match.getPlayers().add(player);
+                Server.matches.put(match.getId(),match);
+                while (!match.isMatchFull()) {
+                    System.out.println("Esperando jugadores3");
+                    Thread.sleep(1000);
+                }
+                return match;
+            }
+        }
+        return null;
+
     }
 
-    public synchronized void newPlayerInMatch(Player player, String gameType, int playersNeeded) {
-        int count = 0;
-        List<Player> auxPlayer = new ArrayList<>();
-        if (!Server.playersWaiting.isEmpty()) {
-            for (Player p : Server.playersWaiting) {
-                if (p.getGameType().equalsIgnoreCase(player.getGameType())) {
-                    count++;
-                }
-            }
-            if (count >= playersNeeded) {
-                auxPlayer.add(player);
-                for (Player p : Server.playersWaiting) {
-                    if (p.getGameType().equalsIgnoreCase(player.getGameType()) && auxPlayer.size() < playersNeeded) {
-                        auxPlayer.add(p);
-                        Server.playersWaiting.remove(p);
-                    }
-                }
-                Match match = new Match(gameType, playersNeeded, auxPlayer);
-                Server.matches.put(match.getId(), match);
-            } else {
-                Server.playersWaiting.add(player);
-            }
-
-        } else {
-            Server.playersWaiting.add(player);
+    private ArrayList<String> playerListInMatch(Match match) {
+        ArrayList<String> playerList = new ArrayList<>();
+        for (Player p : match.getPlayers()) {
+            playerList.add(p.getNickname() + "," + p.getHost() + "," + p.getPort() + "," + p.getRoll());
         }
+        return playerList;
     }
 
     public synchronized void endMatch(int id) {
