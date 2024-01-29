@@ -12,12 +12,12 @@ public class Match {
     private int playersNum;
     private List<Player> players;
 
-    public Match(String gameType, int playersNum) {
-        id = count;
+    public Match(int id, String gameType, int playersNum) {
+        this.id = id;
         this.gameType = gameType;
         this.playersNum = playersNum;
         this.players = new ArrayList<>();
-        count ++;
+
     }
 
     public int getId() {
@@ -47,8 +47,9 @@ public class Match {
     public List<Player> getPlayers() {
         return players;
     }
-    public boolean isMatchFull(){
-        if(players.size()==playersNum){
+
+    public boolean isMatchFull() {
+        if (players.size() == playersNum) {
             return true;
         }
         return false;

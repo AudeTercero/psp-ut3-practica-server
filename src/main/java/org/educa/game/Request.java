@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Request implements Runnable {
+    private static int idMatch = 0;
     private Socket clientSocket;
     private int playersReady;
 
@@ -58,16 +59,15 @@ public class Request implements Runnable {
     }
 
 
-
     public synchronized Match newPlayerInMatch(Player player, String gameType, int playersNeeded) throws InterruptedException {
         if (Server.matches.isEmpty()) {
-            Match match = new Match(gameType, playersNeeded);
+            Match match = new Match(plusCount(), gameType, playersNeeded);
             player.setRoll(0);
             match.getPlayers().add(player);
-            Server.matches.put(match.getId(),match);
+            Server.matches.put(match.getId(), match);
             while (!match.isMatchFull()) {
                 System.out.println("Esperando jugadores1");
-                Thread.sleep(1000);
+                wait();
             }
             return match;
         } else {
@@ -79,21 +79,23 @@ public class Request implements Runnable {
                     isFull = false;
                     while (!match.isMatchFull()) {
                         System.out.println("Esperando jugadores2");
-                        Thread.sleep(1000);
-                    }
+                        wait();
 
+                    }
+                    notifyAll();
                     return match;
                 }
             }
             if (isFull) {
-                Match match = new Match(gameType, playersNeeded);
+                Match match = new Match(plusCount(), gameType, playersNeeded);
                 player.setRoll(0);
                 match.getPlayers().add(player);
-                Server.matches.put(match.getId(),match);
+                Server.matches.put(match.getId(), match);
                 while (!match.isMatchFull()) {
                     System.out.println("Esperando jugadores3");
-                    Thread.sleep(1000);
+                    wait();
                 }
+                notifyAll();
                 return match;
             }
         }
@@ -104,12 +106,17 @@ public class Request implements Runnable {
     private ArrayList<String> playerListInMatch(Match match) {
         ArrayList<String> playerList = new ArrayList<>();
         for (Player p : match.getPlayers()) {
-            playerList.add(p.getNickname() + "," + p.getHost() + "," + p.getPort() + "," + p.getRoll());
+            playerList.add(match.getId() + "," + p.getNickname() + "," + p.getHost() + "," + p.getPort() + "," + p.getRoll());
         }
         return playerList;
     }
 
     public synchronized void endMatch(int id) {
         Server.matches.remove(id);
+    }
+
+
+    public synchronized int plusCount() {
+        return idMatch++;
     }
 }
