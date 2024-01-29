@@ -63,34 +63,38 @@ public class Request implements Runnable {
         if (Server.matches.isEmpty()) {
             Match match = new Match(plusCount(), gameType, playersNeeded);
             player.setRoll(0);
-            match.getPlayers().add(player);
-            Server.matches.put(match.getId(), match);
+            modifyMatch(match,player);
+            modifyListMatch(match);
             while (!match.isMatchFull()) {
                 System.out.println("Esperando jugadores1");
                 wait();
             }
+            System.out.println("Dejando de esperar");
+            notifyAll();
             return match;
         } else {
             boolean isFull = true;
+
             for (Match match : Server.matches.values()) {
                 if (match.getGameType().equalsIgnoreCase(gameType) && !match.isMatchFull()) {
                     player.setRoll(1);
-                    match.getPlayers().add(player);
+                    modifyMatch(match,player);
                     isFull = false;
                     while (!match.isMatchFull()) {
                         System.out.println("Esperando jugadores2");
                         wait();
-
                     }
                     notifyAll();
                     return match;
                 }
+
             }
+
             if (isFull) {
                 Match match = new Match(plusCount(), gameType, playersNeeded);
                 player.setRoll(0);
-                match.getPlayers().add(player);
-                Server.matches.put(match.getId(), match);
+                modifyMatch(match,player);
+                modifyListMatch(match);
                 while (!match.isMatchFull()) {
                     System.out.println("Esperando jugadores3");
                     wait();
@@ -101,6 +105,12 @@ public class Request implements Runnable {
         }
         return null;
 
+    }
+    private synchronized void modifyListMatch(Match match){
+        Server.matches.put(match.getId(), match);
+    }
+    private synchronized void modifyMatch(Match match,Player player){
+        match.getPlayers().add(player);
     }
 
     private ArrayList<String> playerListInMatch(Match match) {
