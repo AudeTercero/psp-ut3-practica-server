@@ -59,6 +59,7 @@ public class Request implements Runnable {
 
             } else {//Condicion en la que el jugador host informa del fin de la partida
                 int id = Integer.parseInt(playerInfo[0]);
+                System.out.println("Finalizando partida: "+id);
                 Server.mat.endMatch(id);
             }
 
