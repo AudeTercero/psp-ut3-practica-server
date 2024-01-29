@@ -5,19 +5,24 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 
 
+/**
+ * Clase servidor que recoge y guarda la informacion de los jugadores que entran
+ * y los empareja
+ * @author Iker Ruiz y Javier Villarta
+ */
 public class Server {
 
     private final String HOST = "localhost";
     private final int PORT = 5555;
     protected static Map<Integer, Match> matches = new HashMap<>();
-    protected static Semaphore mutex = new Semaphore(1);
-    protected static Matches mat = new Matches();
+    protected static MatchesController mat = new MatchesController();
 
+    /**
+     * Clase run que inicia la logica de la clase servidor
+     */
     public void run() {
         System.out.println("Creando socket servidor");
         Socket clientSocket = null;
@@ -28,7 +33,7 @@ public class Server {
 
             System.out.println("Aceptando conexiones.");
 
-            while (true) {
+            while (true) { //Se recogen los hilos de los jugadores y se crean hilos a modo de respuesta
                 clientSocket = serverSocket.accept();
                 Request request = new Request(clientSocket);
                 Thread thread = new Thread(request);
@@ -41,9 +46,4 @@ public class Server {
         }
 
     }
-
-
-
-
-
 }
