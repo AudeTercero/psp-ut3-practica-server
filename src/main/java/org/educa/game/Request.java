@@ -36,8 +36,8 @@ public class Request implements Runnable {
 
                 System.out.println(player.getNickname());
 
-                Match match = Server.newPlayerInMatch(player, gameType, playersNeeded);
-                notifyAll();
+                Match match = Server.mat.newPlayerInMatch(player, gameType, playersNeeded);
+                //notifyAll();
 
                 out.writeObject(playerListInMatch(match));
                 out.flush();
@@ -46,7 +46,7 @@ public class Request implements Runnable {
 
             } else {
                 int id = Integer.parseInt(playerInfo[0]);
-                Server.endMatch(id);
+                Server.mat.endMatch(id);
             }
 
 
