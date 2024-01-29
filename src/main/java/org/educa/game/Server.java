@@ -7,14 +7,15 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 
 public class Server {
 
     private final String HOST = "localhost";
     private final int PORT = 5555;
-    protected final static Map<Integer, Match> matches = new HashMap<>();
-    protected static List<Player> playersWaiting;
+    protected static Map<Integer, Match> matches = new HashMap<>();
+    protected static Semaphore mutex = new Semaphore(1);
     protected static Matches mat = new Matches();
 
     public void run() {

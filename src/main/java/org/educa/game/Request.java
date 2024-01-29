@@ -37,6 +37,7 @@ public class Request implements Runnable {
                 System.out.println(player.getNickname());
 
                 Match match = Server.mat.newPlayerInMatch(player, gameType, playersNeeded);
+                Server.mat.waitPlayers(match);
                 //notifyAll();
 
                 out.writeObject(playerListInMatch(match));

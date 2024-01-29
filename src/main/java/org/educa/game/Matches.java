@@ -7,41 +7,53 @@ public class Matches {
 
 
         boolean isFull = true;
+        System.out.println(Server.matches.size());
+        if (Server.matches.isEmpty()) {
+            Match match = new Match(plusCount(), gameType, playersNeeded);
+            match.getPlayers().add(player);
+            Server.matches.put(match.getId(), match);
+            System.out.println("--"+Server.matches.size());
 
-        for (Match match : Server.matches.values()) {
-            if (match.getGameType().equalsIgnoreCase(gameType) && !match.isMatchFull()) {//si hay una partida con hueco
-                player.setRoll(1);
+
+            return match;
+        } else {
+            System.out.println(Server.matches.size());
+            for (Match match : Server.matches.values()) {
+                System.out.println(match.getGameType().equalsIgnoreCase(gameType) + "" + !match.isMatchFull());
+                if (match.getGameType().equalsIgnoreCase(gameType) && !match.isMatchFull()) {//si hay una partida con hueco
+                    player.setRoll(1);
+                    modifyMatch(match, player);
+                    isFull = false;
+
+
+                    return match;
+                }
+            }
+
+            if (isFull) {//si hay partidas pero ninguna con hueco
+                Match match = new Match(plusCount(), gameType, playersNeeded);
+                player.setRoll(0);
                 modifyMatch(match, player);
-                isFull = false;
-//                while (!match.isMatchFull()) {
-//                    System.out.println("Esperando jugadores2");
-//                    //wait();
-//                    //Thread.sleep(1000);
-//                }
+                modifyListMatch(match);
+                System.out.println("");
 
                 return match;
             }
-        }
-
-        if (isFull) {//si hay partidas pero ninguna con hueco
-            Match match = new Match(plusCount(), gameType, playersNeeded);
-            player.setRoll(0);
-            modifyMatch(match, player);
-            modifyListMatch(match);
-//            while (!match.isMatchFull()) {
-//                System.out.println("Esperando jugadores3");
-//                //wait();
-//                //Thread.sleep(1000);
-//
-//            }
-
-            return match;
         }
 
 
         return null;
 
     }
+    public void waitPlayers(Match match) throws InterruptedException {
+        while (!match.isMatchFull()) {
+            System.out.println("Esperando jugadores");
+            //wait();
+            Thread.sleep(1000);
+
+        }
+    }
+
 
     private synchronized void modifyListMatch(Match match) {
         Server.matches.put(match.getId(), match);
