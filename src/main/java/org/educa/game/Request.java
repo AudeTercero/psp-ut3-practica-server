@@ -67,7 +67,8 @@ public class Request implements Runnable {
             modifyListMatch(match);
             while (!match.isMatchFull()) {
                 System.out.println("Esperando jugadores1");
-                wait();
+                //wait();
+                Thread.sleep(1000);
             }
             System.out.println("Dejando de esperar");
             notifyAll();
@@ -82,7 +83,8 @@ public class Request implements Runnable {
                     isFull = false;
                     while (!match.isMatchFull()) {
                         System.out.println("Esperando jugadores2");
-                        wait();
+                        //wait();
+                        Thread.sleep(1000);
                     }
                     notifyAll();
                     return match;
@@ -97,7 +99,8 @@ public class Request implements Runnable {
                 modifyListMatch(match);
                 while (!match.isMatchFull()) {
                     System.out.println("Esperando jugadores3");
-                    wait();
+                    //wait();
+                    Thread.sleep(1000);
                 }
                 notifyAll();
                 return match;
