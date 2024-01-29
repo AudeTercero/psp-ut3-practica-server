@@ -5,7 +5,7 @@ package org.educa.game;
  * @author Iker Ruiz y Javier Villarta
  */
 public class MatchesController {
-    private static int idMatch = 0;
+    private static int idMatch = 1;
 
     /**
      * Metodo que asigna a un jugador una partida nueva o lo asocia a una ya existente
@@ -18,25 +18,21 @@ public class MatchesController {
     protected synchronized Match newPlayerInMatch(Player player, String gameType, int playersNeeded) throws InterruptedException {
 
         boolean isFull = true;
-        System.out.println(Server.matches.size());
+
         if (Server.matches.isEmpty()) {
             Match match = new Match(plusCount(), gameType, playersNeeded);
             match.getPlayers().add(player);
             Server.matches.put(match.getId(), match);
-            System.out.println("--"+Server.matches.size());
-
-
             return match;
         } else {
-            System.out.println(Server.matches.size());
+
             for (Match match : Server.matches.values()) {
-                System.out.println(match.getGameType().equalsIgnoreCase(gameType) + "" + !match.isMatchFull());
                 if (match.getGameType().equalsIgnoreCase(gameType) && !match.isMatchFull()) {//si hay una partida con hueco
                     player.setRole(1);
                     modifyMatch(match, player);
                     isFull = false;
 
-
+                    System.out.println("Partida: "+match.getId()+". " + match.getPlayers().getFirst().getNickname()+" vs "+ match.getPlayers().getLast().getNickname());
                     return match;
                 }
             }
@@ -46,7 +42,6 @@ public class MatchesController {
                 player.setRole(0);
                 modifyMatch(match, player);
                 modifyListMatch(match);
-                System.out.println("");
 
                 return match;
             }
@@ -65,8 +60,8 @@ public class MatchesController {
             System.out.println("Esperando jugadores");
             //wait();
             Thread.sleep(1000);
-
         }
+
     }
 
     /**

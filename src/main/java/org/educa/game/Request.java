@@ -29,7 +29,6 @@ public class Request implements Runnable {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
              ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream())) {
 
-            System.out.println("New connection: " + clientSocket);
             String data = reader.readLine();//se recibe la informacion del jugador
 
             String[] playerInfo = data.split(",");//la informacion se separa
@@ -46,7 +45,7 @@ public class Request implements Runnable {
                 //Creamos el jugador en el servidor a partir de su informacion
                 Player player = new Player(nick, host, port);
 
-                System.out.println(player.getNickname());
+                System.out.println("Conectado jugador: "+player.getNickname());
 
                 //Guardamos al jugador en una partida nueva o ya creada
                 Match match = Server.mat.newPlayerInMatch(player, gameType, playersNeeded);
